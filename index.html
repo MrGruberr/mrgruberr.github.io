@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>D.A Growth — Creator Monetization</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060810;
+    --surface: #0d1020;
+    --surface2: #131728;
+    --border: rgba(255,255,255,0.07);
+    --accent: #4f6ef7;
+    --accent2: #7c3aed;
+    --glow: rgba(79,110,247,0.25);
+    --text: #f0f2ff;
+    --muted: #6b7399;
+    --tag: rgba(79,110,247,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* ── BG GLOW BLOBS ── */
+  .blobs {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(120px);
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .blob1 { width: 600px; height: 600px; background: rgba(79,110,247,0.12); top: -200px; left: -150px; animation-delay: 0s; }
+  .blob2 { width: 500px; height: 500px; background: rgba(124,58,237,0.1); bottom: -150px; right: -100px; animation-delay: -7s; }
+  .blob3 { width: 300px; height: 300px; background: rgba(79,110,247,0.08); top: 50%; left: 60%; animation-delay: -14s; }
+
+  @keyframes drift {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(40px,60px) scale(1.1); }
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 22px 0;
+    border-bottom: 1px solid transparent;
+    transition: all 0.4s ease;
+    backdrop-filter: blur(0px);
+  }
+  nav.scrolled {
+    background: rgba(6,8,16,0.85);
+    border-bottom-color: var(--border);
+    backdrop-filter: blur(20px);
+    padding: 16px 0;
+  }
+  nav .container { display: flex; align-items: center; justify-content: space-between; }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    text-decoration: none; color: var(--muted);
+    font-size: 0.88rem; font-weight: 400;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--accent); color: #fff !important;
+    padding: 9px 22px; border-radius: 6px;
+    font-weight: 500 !important; letter-spacing: 0 !important;
+    text-transform: none !important; font-size: 0.88rem !important;
+    transition: opacity 0.2s, transform 0.2s !important;
+  }
+  .nav-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh; display: flex; align-items: center;
+    padding-top: 100px;
+    position: relative;
+  }
+  .hero-inner {
+    max-width: 780px;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--tag); border: 1px solid rgba(79,110,247,0.25);
+    border-radius: 100px; padding: 6px 16px;
+    font-size: 0.78rem; font-weight: 500; color: var(--accent);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 0.8s ease forwards 0.1s;
+  }
+  .hero-tag::before { content: ''; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+    opacity: 0; animation: fadeUp 0.8s ease forwards 0.25s;
+  }
+  h1 em { font-style: normal; color: transparent; background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; background-clip: text; }
+
+  .hero-sub {
+    font-size: 1.15rem; color: var(--muted); line-height: 1.75;
+    max-width: 560px; margin-bottom: 44px;
+    opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  .hero-actions {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    opacity: 0; animation: fadeUp 0.8s ease forwards 0.55s;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--accent); color: #fff;
+    padding: 16px 32px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500;
+    text-decoration: none; transition: all 0.25s;
+    box-shadow: 0 0 40px rgba(79,110,247,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(79,110,247,0.5); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--text);
+    padding: 16px 28px; border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 0.95rem; font-weight: 400;
+    text-decoration: none; transition: all 0.25s;
+  }
+  .btn-ghost:hover { border-color: rgba(79,110,247,0.4); color: var(--accent); }
+
+  /* scroll indicator */
+  .scroll-line {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0; animation: fadeUp 1s ease forwards 1.2s;
+  }
+  .scroll-line span { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .scroll-line::after { content: ''; width: 1px; height: 48px; background: linear-gradient(to bottom, var(--muted), transparent); animation: scrollDrop 2s ease infinite; }
+  @keyframes scrollDrop { 0%{transform:scaleY(0);transform-origin:top} 50%{transform:scaleY(1);transform-origin:top} 51%{transform-origin:bottom} 100%{transform:scaleY(0);transform-origin:bottom} }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── METRICS STRIP ── */
+  .metrics {
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    position: relative; z-index: 1;
+  }
+  .metrics .container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .metric {
+    padding: 24px 40px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .metric:last-child { border-right: none; }
+  .metric-num {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 2.5rem; line-height: 1;
+    background: linear-gradient(135deg, #fff, #8ba4ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 6px;
+  }
+  .metric-label { font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 110px 0; position: relative; z-index: 1; }
+  .section-tag {
+    display: inline-block;
+    font-size: 0.75rem; font-weight: 500; color: var(--accent);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1; letter-spacing: -0.025em;
+    margin-bottom: 20px;
+  }
+  .section-sub { color: var(--muted); font-size: 1.05rem; line-height: 1.75; max-width: 520px; margin-bottom: 64px; }
+
+  /* ── SERVICES ── */
+  #services { background: linear-gradient(to bottom, var(--bg), var(--surface)); }
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .service-card {
+    background: var(--surface);
+    padding: 40px 36px;
+    position: relative;
+    transition: background 0.3s;
+    overflow: hidden;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .service-card:hover { background: var(--surface2); }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-icon {
+    width: 48px; height: 48px; margin-bottom: 24px;
+    background: var(--tag); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .service-card h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1.1rem; margin-bottom: 12px; letter-spacing: -0.01em;
+  }
+  .service-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── HOW IT WORKS ── */
+  #process { }
+  .process-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .steps { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: flex; gap: 24px; padding: 28px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 2.5rem; line-height: 1;
+    color: transparent; -webkit-text-stroke: 1px rgba(79,110,247,0.3);
+    min-width: 52px; flex-shrink: 0;
+    transition: -webkit-text-stroke 0.3s;
+  }
+  .step:hover .step-num { -webkit-text-stroke-color: var(--accent); }
+  .step-content h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1.05rem; margin-bottom: 8px;
+  }
+  .step-content p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+  .process-visual {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px;
+    position: relative; overflow: hidden;
+  }
+  .process-visual::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(79,110,247,0.1), transparent 60%);
+    pointer-events: none;
+  }
+  .visual-orbit {
+    position: relative; width: 240px; height: 240px;
+    margin: 0 auto 32px;
+  }
+  .orbit-center {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 0 60px rgba(79,110,247,0.5);
+  }
+  .orbit-ring {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: 50%; border: 1px solid var(--border);
+  }
+  .ring1 { width: 140px; height: 140px; animation: spin 12s linear infinite; }
+  .ring2 { width: 220px; height: 220px; animation: spin 20s linear infinite reverse; }
+  .orbit-dot {
+    position: absolute; width: 10px; height: 10px;
+    background: var(--accent); border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+  }
+  .ring1 .orbit-dot { top: -5px; left: 50%; transform: translateX(-50%); }
+  .ring2 .orbit-dot { top: -5px; left: 50%; transform: translateX(-50%); }
+  @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+  .visual-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .vstat {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .vstat-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+  .vstat-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.3rem; }
+  .up { color: #4ade80; }
+  .accent { color: var(--accent); }
+
+  /* ── WHY ME ── */
+  #why { background: linear-gradient(to bottom, var(--surface), var(--bg)); }
+  .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .why-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 36px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .why-card:hover { border-color: rgba(79,110,247,0.35); transform: translateY(-4px); }
+  .why-card .icon { font-size: 1.6rem; margin-bottom: 18px; }
+  .why-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+  .why-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+  .why-card.featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(79,110,247,0.1), rgba(124,58,237,0.06));
+    border-color: rgba(79,110,247,0.25);
+    display: flex; gap: 32px; align-items: center;
+  }
+  .why-card.featured .icon { font-size: 2.5rem; flex-shrink: 0; }
+
+  /* ── CTA ── */
+  #cta {
+    text-align: center;
+    padding-bottom: 140px;
+  }
+  .cta-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 80px 60px;
+    position: relative; overflow: hidden;
+  }
+  .cta-box::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(79,110,247,0.15), transparent 65%);
+    pointer-events: none;
+  }
+  .cta-box h2 { margin-bottom: 16px; }
+  .cta-box p { color: var(--muted); max-width: 480px; margin: 0 auto 40px; font-size: 1.05rem; line-height: 1.75; }
+  .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 32px 0;
+    position: relative; z-index: 1;
+  }
+  footer .container { display: flex; justify-content: space-between; align-items: center; }
+  footer .logo { font-size: 1rem; }
+  footer p { font-size: 0.8rem; color: var(--muted); }
+
+  /* ── REVEAL ANIMATION ── */
+  .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    .services-grid, .why-grid { grid-template-columns: 1fr; }
+    .process-grid { grid-template-columns: 1fr; }
+    .metrics .container { grid-template-columns: 1fr; }
+    .metric { border-right: none; border-bottom: 1px solid var(--border); }
+    .why-card.featured { grid-column: span 1; flex-direction: column; }
+    .cta-box { padding: 48px 28px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blobs">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="container">
+    <a class="logo" href="#">D.A<span>.</span>Growth</a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#why">Why Us</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-tag">Creator Monetization Partner</div>
+      <h1>Turn your audience<br>into <em>recurring revenue</em></h1>
+      <p class="hero-sub">
+        D.A Growth partners with content creators to build and manage full monetization systems — paid communities, digital products, and coaching offers — on a pure revenue-share basis.
+      </p>
+      <div class="hero-actions">
+        <a href="#services" class="btn-ghost">See What We Do</a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-line"><span>Scroll</span></div>
+</section>
+
+<!-- METRICS -->
+<div class="metrics">
+  <div class="container">
+    <div class="metric reveal">
+      <div class="metric-num">100%</div>
+      <div class="metric-label">Revenue Share Model</div>
+    </div>
+    <div class="metric reveal" style="transition-delay:0.1s">
+      <div class="metric-num">$0</div>
+      <div class="metric-label">Upfront Cost to Creators</div>
+    </div>
+    <div class="metric reveal" style="transition-delay:0.2s">
+      <div class="metric-num">End‑to‑End</div>
+      <div class="metric-label">Fully Managed Systems</div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-tag reveal">What We Build</div>
+    <h2 class="reveal">A complete monetization<br>backend for your brand</h2>
+    <p class="section-sub reveal">We handle everything from offer creation to fulfilment — so you stay focused on making content.</p>
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <div class="service-icon">🏛️</div>
+        <h3>Paid Communities</h3>
+        <p>We design, launch and manage a thriving paid community around your niche — structured, engaged, and built to retain members month after month.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📦</div>
+        <h3>Digital Products</h3>
+        <p>Guides, templates, mini-courses and toolkits — packaged under your brand and sold through optimised funnels that convert your existing audience.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎯</div>
+        <h3>Coaching Offers</h3>
+        <p>High-ticket group coaching programmes built around your expertise, with full backend management including onboarding, scheduling and delivery.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🔁</div>
+        <h3>Funnel & Automation</h3>
+        <p>Email sequences, landing pages and sales funnels set up and optimised so your audience converts on autopilot — while you sleep.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📊</div>
+        <h3>Analytics & Scaling</h3>
+        <p>We track what works, cut what doesn't, and systematically scale your revenue month over month with data-driven decisions.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">💬</div>
+        <h3>Community Management</h3>
+        <p>Full moderation, engagement and retention management — keeping your members happy, active, and renewing every single month.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="container">
+    <div class="process-grid">
+      <div>
+        <div class="section-tag reveal">How It Works</div>
+        <h2 class="reveal">From zero to<br>revenue in 4 steps</h2>
+        <p class="section-sub reveal" style="margin-bottom:40px">No complexity, no upfront investment. We plug into your brand and get to work.</p>
+        <div class="steps">
+          <div class="step reveal">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <h3>Strategy Session</h3>
+              <p>We map out your audience, your niche, and the highest-leverage monetization path for your specific situation.</p>
+            </div>
+          </div>
+          <div class="step reveal">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <h3>Offer Build</h3>
+              <p>We design your product, community or coaching offer end-to-end — positioning, pricing, and full delivery setup.</p>
+            </div>
+          </div>
+          <div class="step reveal">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <h3>Launch</h3>
+              <p>We run the launch to your audience with proven frameworks — landing pages, email flows, and a rollout strategy that converts.</p>
+            </div>
+          </div>
+          <div class="step reveal">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <h3>Manage & Scale</h3>
+              <p>We own the backend permanently — optimising, growing, and making sure the revenue compounds over time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="process-visual reveal">
+        <div class="visual-orbit">
+          <div class="orbit-center">🚀</div>
+          <div class="orbit-ring ring1"><div class="orbit-dot"></div></div>
+          <div class="orbit-ring ring2"><div class="orbit-dot"></div></div>
+        </div>
+        <div class="visual-stats">
+          <div class="vstat">
+            <div class="vstat-label">Monthly Revenue</div>
+            <div class="vstat-val up">↑ 340%</div>
+          </div>
+          <div class="vstat">
+            <div class="vstat-label">Avg. Launch</div>
+            <div class="vstat-val accent">14 days</div>
+          </div>
+          <div class="vstat">
+            <div class="vstat-label">Your Upfront Cost</div>
+            <div class="vstat-val">$0</div>
+          </div>
+          <div class="vstat">
+            <div class="vstat-label">Retention Rate</div>
+            <div class="vstat-val up">85%+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <div class="container">
+    <div class="section-tag reveal">Why D.A Growth</div>
+    <h2 class="reveal">Skin in the game —<br>we only win when you win</h2>
+    <p class="section-sub reveal">We don't charge retainers. We build your revenue backend and take a share. Aligned incentives, always.</p>
+    <div class="why-grid">
+      <div class="why-card featured reveal">
+        <div class="icon">🤝</div>
+        <div>
+          <h3>Pure Revenue Share — Zero Risk</h3>
+          <p>No monthly fees, no setup costs. We invest our time and expertise into building your monetization system and earn only when you earn. This means we're fully committed to making it work — our interests are perfectly aligned with yours.</p>
+        </div>
+      </div>
+      <div class="why-card reveal">
+        <div class="icon">⚡</div>
+        <h3>Speed to Market</h3>
+        <p>Most creators sit on their audience for years without monetizing it. We can have a live offer and revenue flowing within two weeks of getting started.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="icon">🧠</div>
+        <h3>Specialist Expertise</h3>
+        <p>We live inside the creator economy. Offer design, community platforms, funnels, email — we bring deep execution knowledge so you don't have to learn it.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="icon">🔒</div>
+        <h3>Your Brand, Always</h3>
+        <p>Everything we build is under your name. Your audience trusts you — we operate invisibly in the background, keeping that trust intact.</p>
+      </div>
+      <div class="why-card reveal">
+        <div class="icon">📈</div>
+        <h3>Built for Long-Term Growth</h3>
+        <p>We don't just launch and leave. Our model is designed for ongoing management and compounding growth — not one-off projects.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <a class="logo" href="#">D.A<span>.</span>Growth</a>
+    <p>© 2026 D.A Growth. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
